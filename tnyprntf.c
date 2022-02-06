@@ -32,17 +32,10 @@
 #define far __far
 #endif
 
-#include <conio.h>
 #include <dos.h>
 #include <stdarg.h>
-#include <stdlib.h>
-#include <bios.h>
 
 #include "tnyprntf.h"
-
-#ifdef __WATCOMC__
-#define bioskey(x) getch()
-#endif
 
 #define FALSE 0
 #define TRUE 1
@@ -53,9 +46,6 @@ static void handle_char(int);
 static void put_console(int);
 static char *ltob(long, char *, int);
 static int do_printf(const char *, register va_list);
-
-/* The following is user supplied and must match the following prototype */
-void cso(int);
 
 static int fstrlen(char far * s)
 {
@@ -285,124 +275,4 @@ static int do_printf(const char * fmt, va_list arg)
   va_end(arg);
   return 0;
 }
-
-#ifdef TEST
-/*
-	this testprogram verifies that the strings are printed correctly
-	( or the way, I expect them to print)
-	
-	compile like (note -DTEST !)
-
-	c:\tc\tcc -DTEST -DI86 -I..\hdr prf.c
-	
-	and run. if strings are wrong, the program will wait for the ANYKEY
-
-*/
-#include <conio.h>
-#include <string.h>
-void cso(int c)
-{
-  writechar(c);
-}
-
-struct {
-  char *should;
-  char *format;
-  unsigned lowint;
-  unsigned highint;
-
-} testarray[] = {
-  {
-  "hello world", "%s %s", (unsigned)"hello", (unsigned)"world"},
-  {
-  "hello", "%3s", (unsigned)"hello", 0},
-  {
-  "  hello", "%7s", (unsigned)"hello", 0},
-  {
-  "hello  ", "%-7s", (unsigned)"hello", 0},
-  {
-  "hello", "%s", (unsigned)"hello", 0},
-  {
-  "1", "%d", 1, 0},
-  {
-  "-1", "%d", -1, 0},
-  {
-  "65535", "%u", -1, 0},
-  {
-  "-32768", "%d", 0x8000, 0},
-  {
-  "32767", "%d", 0x7fff, 0},
-  {
-  "-32767", "%d", 0x8001, 0},
-  {
-  "8000", "%x", 0x8000, 0},
-  {
-  "   1", "%4x", 1, 0},
-  {
-  "0001", "%04x", 1, 0},
-  {
-  "1   ", "%-4x", 1, 0},
-  {
-  "1000", "%-04x", 1, 0},
-  {
-  "1", "%ld", 1, 0},
-  {
-  "-1", "%ld", -1, -1},
-  {
-  "65535", "%ld", -1, 0},
-  {
-  "65535", "%u", -1, 0},
-  {
-  "8000", "%lx", 0x8000, 0},
-  {
-  "80000000", "%lx", 0, 0x8000},
-  {
-  "   1", "%4lx", 1, 0},
-  {
-  "0001", "%04lx", 1, 0},
-  {
-  "1   ", "%-4lx", 1, 0},
-  {
-  "1000", "%-04lx", 1, 0},
-  {
-  "-2147483648", "%ld", 0, 0x8000},
-  {
-  "2147483648", "%lu", 0, 0x8000},
-  {
-  "2147483649", "%lu", 1, 0x8000},
-  {
-  "-2147483647", "%ld", 1, 0x8000},
-  {
-  "32767", "%ld", 0x7fff, 0},
-  {
-"ptr 1234:5678", "ptr %p", 0x5678, 0x1234}, 0};
-
-void test(char *should, char *format, unsigned lowint, unsigned highint)
-{
-  char b[100];
-
-  Tsprintf(b, format, lowint, highint);
-
-  Tprintf("'%s' = '%s'\n", should, b);
-
-  if (strcmp(b, should))
-  {
-    Tprintf("\nhit the ANYKEY\n");
-    getch();
-  }
-}
-
-int main()
-{
-  int i;
-  Tprintf("hello world\n");
-
-  for (i = 0; testarray[i].should; i++)
-  {
-    test(testarray[i].should, testarray[i].format, testarray[i].lowint,
-         testarray[i].highint);
-  }
-  return 0;
-}
-#endif
 

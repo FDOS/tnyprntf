@@ -29,7 +29,6 @@
 #ifndef __GNUC__
 #include <io.h>
 #else
-#define _BORLANDC_SOURCE
 #define far __far
 #endif
 
@@ -155,37 +154,15 @@ int Tsprintf(char * buff, const char * fmt, ...)
   return charp - buff - 1;
 }
 
-/*
-unsigned long far retcs(int i)
-{
-    char *p = (char*)&i;
-    
-    p -= 4;
-    return *(unsigned long *)p;
-}
-*/
 static int do_printf(const char * fmt, va_list arg)
 {
   int base;
   char s[11];
   char far * p;
-
   int c, flag, size, fill;
   int longarg;
   long currentArg;
 
-/*  
-  long cs = retcs(1);
-  put_console("0123456789ABCDEF"[(cs >> 28) & 0x0f]);
-  put_console("0123456789ABCDEF"[(cs >> 24) & 0x0f]);
-  put_console("0123456789ABCDEF"[(cs >> 20) & 0x0f]);
-  put_console("0123456789ABCDEF"[(cs >> 16) & 0x0f]);
-  put_console(':');
-  put_console("0123456789ABCDEF"[(cs >> 12) & 0x0f]);
-  put_console("0123456789ABCDEF"[(cs >>  8) & 0x0f]);
-  put_console("0123456789ABCDEF"[(cs >>  4) & 0x0f]);
-  put_console("0123456789ABCDEF"[(cs >>  0) & 0x0f]);
-*/
   while ((c = *fmt++) != '\0')
   {
     if (c != '%')

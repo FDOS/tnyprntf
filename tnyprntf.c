@@ -39,6 +39,8 @@
 #include <stdlib.h>
 #include <bios.h>
 
+#include "tnyprntf.h"
+
 #ifdef __WATCOMC__
 #define bioskey(x) getch()
 #endif
@@ -50,16 +52,13 @@ static char *charp = 0;
 
 static void handle_char(int);
 static void put_console(int);
-static char * ltob(long, char *, int);
+static char *ltob(long, char *, int);
 static int do_printf(const char *, register va_list);
-
-int Xprintf(const char * fmt, ...);
-int Xsprintf(char * buff, const char * fmt, ...);
 
 /* The following is user supplied and must match the following prototype */
 void cso(int);
 
-int fstrlen(char far * s)
+static int fstrlen(char far * s)
 {
   int i = 0;
 
@@ -69,7 +68,7 @@ int fstrlen(char far * s)
   return i;
 }
 
-void writechar(char c)
+static void writechar(char c)
 {
   union REGS r;
 
@@ -78,7 +77,7 @@ void writechar(char c)
   intdos(&r, &r);
 }
 
-void put_console(int c)
+static void put_console(int c)
 {
   if (c == '\n')
     put_console('\r');
@@ -97,7 +96,7 @@ static void handle_char(int c)
 }
 
 /* ltob -- convert an long integer to a string in any base (2-16) */
-char *ltob(long n, char * s, int base)
+static char *ltob(long n, char * s, int base)
 {
   unsigned long u;
   char *p, *q;
@@ -136,7 +135,7 @@ char *ltob(long n, char * s, int base)
 #define RIGHT   1
 
 /* printf -- short version of printf to conserve space */
-int Xprintf(const char * fmt, ...)
+int Tprintf(const char * fmt, ...)
 {
   va_list arg;
 
@@ -145,7 +144,7 @@ int Xprintf(const char * fmt, ...)
   return do_printf(fmt, arg);
 }
 
-int Xsprintf(char * buff, const char * fmt, ...)
+int Tsprintf(char * buff, const char * fmt, ...)
 {
   va_list arg;
 
@@ -165,7 +164,7 @@ unsigned long far retcs(int i)
     return *(unsigned long *)p;
 }
 */
-int do_printf(const char * fmt, va_list arg)
+static int do_printf(const char * fmt, va_list arg)
 {
   int base;
   char s[11];
@@ -238,7 +237,7 @@ int do_printf(const char * fmt, va_list arg)
           unsigned short w0 = va_arg(arg, unsigned int);
           unsigned short w1 = va_arg(arg, unsigned int);
           char *tmp = charp;
-          Xsprintf(s, "%04x:%04x", w1, w0);
+          Tsprintf(s, "%04x:%04x", w1, w0);
           p = s;
           charp = tmp;
           goto do_outputstring;
@@ -405,13 +404,13 @@ void test(char *should, char *format, unsigned lowint, unsigned highint)
 {
   char b[100];
 
-  Xsprintf(b, format, lowint, highint);
+  Tsprintf(b, format, lowint, highint);
 
-  Xprintf("'%s' = '%s'\n", should, b);
+  Tprintf("'%s' = '%s'\n", should, b);
 
   if (strcmp(b, should))
   {
-    Xprintf("\nhit the ANYKEY\n");
+    Tprintf("\nhit the ANYKEY\n");
     getch();
   }
 }
@@ -419,7 +418,7 @@ void test(char *should, char *format, unsigned lowint, unsigned highint)
 int main()
 {
   int i;
-  Xprintf("hello world\n");
+  Tprintf("hello world\n");
 
   for (i = 0; testarray[i].should; i++)
   {

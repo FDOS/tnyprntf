@@ -88,6 +88,8 @@ struct {
   "32767", "%ld", 0x7fff, 0},
   {
   "ptr 1234:5678", "ptr %p", 0x5678, 0x1234},
+  {
+  "percent character '%'", "percent character '%%'"},
   {0}};
 
 void test(char *should, char *format, unsigned lowint, unsigned highint)

@@ -199,6 +199,10 @@ static int do_printf(const char * fmt, va_list arg)
         handle_char(va_arg(arg, int));
         continue;
 
+      case '%':         /* added 2005 */
+        handle_char('%');
+        continue;
+
       case 'p':
         {
           unsigned short w0 = va_arg(arg, unsigned int);
